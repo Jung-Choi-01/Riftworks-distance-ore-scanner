@@ -1,4 +1,5 @@
 ﻿using Riftworks.src.Items.Wearable;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vintagestory.API.Client;
@@ -6,6 +7,7 @@ using Vintagestory.API.Common;
 using Vintagestory.API.Config;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
+using Vintagestory.API.Util;
 
 namespace Riftworks.src.Systems
 {
@@ -52,7 +54,7 @@ namespace Riftworks.src.Systems
             BlockPos centerPos = player.Entity.Pos.AsBlockPos;
             int scanRadius = 10;
 
-            HashSet<string> detectedOres = new();
+            Dictionary<string, int> detectedOres = new Dictionary<string, int>();
 
             for (int offsetX = -scanRadius; offsetX <= scanRadius; offsetX++)
             {
@@ -85,17 +87,28 @@ namespace Riftworks.src.Systems
                                 index = 1;
                             }
 
+                            string oreName;
                             // If only 1 element left, it's the ore name
                             if (parts.Length - index == 1)
                             {
-                                detectedOres.Add(parts[index]);
+                                oreName = parts[index];
                             }
-                            else if (parts.Length - index >= 2)
+                            else
                             {
                                 // Take everything except the last part
                                 string[] oreParts = parts.Skip(index).Take(parts.Length - index - 1).ToArray();
-                                string oreName = string.Join("-", oreParts);
-                                detectedOres.Add(oreName);
+                                oreName = string.Join("-", oreParts);
+                            }
+
+                            int distance = new int[] {offsetX, offsetY, offsetZ}.Sum(Math.Abs);
+                            if(detectedOres.ContainsKey(oreName))
+                            {
+                                if(distance >= detectedOres.Get(oreName)) continue;
+                                detectedOres[oreName] = distance;
+                            } 
+                            else
+                            {
+                                detectedOres[oreName] = distance;
                             }
                         }
 
@@ -105,7 +118,8 @@ namespace Riftworks.src.Systems
 
             if (player is IServerPlayer serverPlayer && detectedOres.Count > 0)
             {
-                string oreList = string.Join(", ", detectedOres);
+                string[] oresFormatted = detectedOres.OrderBy(pair => pair.Value).Select(pair => $"{pair.Key} ({pair.Value}m)").ToArray();
+                string oreList = string.Join(", ", oresFormatted);
                 serverPlayer.SendMessage(GlobalConstants.InfoLogChatGroup, $"Detected nearby ores - {oreList}.", EnumChatType.Notification);
             }
         }
