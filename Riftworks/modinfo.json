@@ -1,12 +1,12 @@
 {
     "type": "code",
     "modid": "riftworks",
-    "name": "Riftworks",
+    "name": "Riftworks (Distance Ore Scanner)",
     "authors": [
-        "Notpossible"
+        "Notpossible, aguaral"
     ],
-    "description": "Adds lategame tech devices",
-    "version": "1.1.20",
+    "description": "Fork for Riftworks that adds distance to the ore scanner message",
+    "version": "1.0.0",
     "dependencies": {
         "game": ""
     }

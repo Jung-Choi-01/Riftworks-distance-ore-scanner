@@ -15,6 +15,7 @@ public class RiftworksModSystem : ModSystem
 
     public override void Start(ICoreAPI api)
     {
+        base.Start(api);
         TryLoadConfig(api);
 
         api.RegisterBlockClass($"{Mod.Info.ModID}:BlockTemporalDisassembler", typeof(BlockTemporalDisassembler));
